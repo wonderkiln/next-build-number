@@ -25,7 +25,7 @@ jobs:
         uses: ./
         id: next_build_number
         with:
-          format: '${{ env.VERSION }}-${{ env.VARIANT }}(\d+)'
+          format: '${{ env.VERSION }}-${{ env.VARIANT }}\.(\d+)'
 
       - name: Create Release (Develop)
         id: create_release_develop
@@ -34,8 +34,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ env.VERSION }}-${{ env.VARIANT }}${{ steps.next_build_number.outputs.next }}
-          release_name: ${{ env.VERSION }}-${{ env.VARIANT }}${{ steps.next_build_number.outputs.next }}
+          tag_name: ${{ env.VERSION }}-${{ env.VARIANT }}.${{ steps.next_build_number.outputs.next }}
+          release_name: ${{ env.VERSION }}-${{ env.VARIANT }}.${{ steps.next_build_number.outputs.next }}
           draft: false
           prerelease: true
 
@@ -46,8 +46,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ env.VERSION }}-${{ env.VARIANT }}${{ steps.next_build_number.outputs.next }}
-          release_name: ${{ env.VERSION }}-${{ env.VARIANT }}${{ steps.next_build_number.outputs.next }}
+          tag_name: ${{ env.VERSION }}-${{ env.VARIANT }}.${{ steps.next_build_number.outputs.next }}
+          release_name: ${{ env.VERSION }}-${{ env.VARIANT }}.${{ steps.next_build_number.outputs.next }}
           draft: false
           prerelease: true
 
