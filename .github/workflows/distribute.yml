@@ -1,0 +1,64 @@
+name: Distribute
+
+on:
+  push:
+    branches: [develop, beta, main]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set Version
+        run: echo VERSION=$(node -p -e "require('./package.json').version") >> $GITHUB_ENV
+
+      - name: Set Variant (Develop)
+        if: github.ref == 'refs/heads/develop'
+        run: echo VARIANT=dev >> $GITHUB_ENV
+
+      - name: Set Variant (Beta)
+        if: github.ref == 'refs/heads/beta'
+        run: echo VARIANT=beta >> $GITHUB_ENV
+
+      - name: Next Build Number Action
+        uses: ./
+        id: next_build_number
+        with:
+          format: '${{ env.VERSION }}-${{ env.VARIANT }}(\d+)'
+
+      - name: Create Release (Develop)
+        id: create_release_develop
+        if: github.ref == 'refs/heads/develop'
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.VERSION }}-${{ env.VARIANT }}${{ steps.next_build_number.outputs.next }}
+          release_name: ${{ env.VERSION }}-${{ env.VARIANT }}${{ steps.next_build_number.outputs.next }}
+          draft: false
+          prerelease: true
+
+      - name: Create Release (Beta)
+        id: create_release_beta
+        if: github.ref == 'refs/heads/beta'
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.VERSION }}-${{ env.VARIANT }}${{ steps.next_build_number.outputs.next }}
+          release_name: ${{ env.VERSION }}-${{ env.VARIANT }}${{ steps.next_build_number.outputs.next }}
+          draft: false
+          prerelease: true
+
+      - name: Create Release (Main)
+        id: create_release_main
+        if: github.ref == 'refs/heads/main'
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.VERSION }}
+          release_name: ${{ env.VERSION }}
+          draft: false
+          prerelease: false
